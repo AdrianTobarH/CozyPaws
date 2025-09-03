@@ -7,6 +7,8 @@ const puppyMonthsWrap = byId('puppyMonthsWrap');
 const puppyMonths = byId('puppyMonths');
 const energy = byId('energy');
 const weightClass = byId('weightClass');
+const breedPreset = byId('breedPreset');
+const ecCity = byId('ecCity');
 const lifestyle = byId('lifestyle');
 const brachy = byId('brachy');
 const joints = byId('joints');
@@ -26,6 +28,17 @@ const shareBlock = byId('shareBlock');
 
 byId('year').textContent = new Date().getFullYear();
 
+// Theme toggle
+const themeToggle = byId('themeToggle');
+(function initTheme(){
+  const saved = localStorage.getItem('cozypaws_theme') || 'dark';
+  if(saved==='light'){ document.body.classList.add('light'); }
+})();
+themeToggle.addEventListener('click', ()=>{
+  document.body.classList.toggle('light');
+  localStorage.setItem('cozypaws_theme', document.body.classList.contains('light') ? 'light' : 'dark');
+});
+
 ageStage.addEventListener('change', () => {
   puppyMonthsWrap.hidden = ageStage.value !== 'puppy';
 });
@@ -39,6 +52,47 @@ byId('resetBtn').addEventListener('click', () => {
   shareBlock.classList.add('hidden');
 });
 
+// Breed presets
+breedPreset.addEventListener('change', ()=>{
+  const v = breedPreset.value;
+  // Reset health toggles
+  brachy.checked = false; joints.checked = false; obese.checked = false; cardioResp.checked = false;
+  energy.value = 'moderate';
+  switch(v){
+    case 'husky':
+    case 'border_collie':
+      energy.value = 'high'; break;
+    case 'labrador':
+      energy.value = 'high'; break;
+    case 'beagle':
+      energy.value = 'moderate'; break;
+    case 'bulldog':
+    case 'pug':
+      energy.value = 'low'; brachy.checked = true; break;
+    case 'chihuahua':
+      energy.value = 'low'; break;
+    default: break;
+  }
+});
+
+// City -> climate
+ecCity.addEventListener('change', ()=>{
+  const map = {
+    quito:'altitude',
+    cuenca:'altitude',
+    ambato:'altitude',
+    riobamba:'altitude',
+    guayaquil:'hot',
+    manta:'hot',
+    esmeraldas:'hot',
+    tena:'hot',
+    loja:'temperate',
+    galapagos:'temperate'
+  };
+  const v = ecCity.value;
+  if(map[v]) climate.value = map[v];
+});
+
 // Helpers
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 const round5 = (n) => Math.round(n / 5) * 5;
@@ -47,7 +101,7 @@ const round5 = (n) => Math.round(n / 5) * 5;
 function baseRangeMinutes({ageStage, energy, puppyMonths}){
   if(ageStage === 'puppy'){
     const months = clamp(Number(puppyMonths||6), 1, 18);
-    const total = clamp(months * 10, 20, 60); // 5 min/mes 2 veces → ~10m*mes, total 20–60
+    const total = clamp(months * 10, 20, 60); // 5 min/mes 2 veces → ~10m*mes
     const range = 10;
     return [clamp(total - range, 15, 60), clamp(total + range, 25, 80)];
   }
@@ -75,9 +129,9 @@ function sizeMultiplier(weightClass){
 
 function lifestyleMultiplier(val){
   switch(val){
-    case 'yard': return 0.9; // algo de autoejercicio
+    case 'yard': return 0.9;
     case 'working': return 1.3;
-    case 'street': return 1.0; // varía; mantenemos y añadimos nota
+    case 'street': return 1.0;
     default: return 1.0;
   }
 }
@@ -102,12 +156,10 @@ function healthMultiplier({brachy,joints,obese,cardioResp}){
 
 function calcWalksPerDay(totalMin, {ageStage, brachy, joints}){
   if(ageStage === 'puppy'){
-    // 3–5 salidas cortas
     const per = clamp(round5(totalMin / 4), 8, 20);
     const walks = Math.max(3, Math.round(totalMin / per));
     return {walks, per};
   }
-  // adultos/senior
   let walks = totalMin > 80 ? 3 : 2;
   let per = round5(totalMin / walks);
   if(joints) { walks = Math.max(3, walks); per = clamp(round5(totalMin / walks), 10, 20); }
@@ -125,35 +177,32 @@ function enrichmentMinutes({ageStage, energy}){
   }
 }
 
-function assembleNotes(inputs, totalRange, total){
+function assembleNotes(inputs, totalRange){
   const notes = [];
   const add = (msg, tone='ok') => notes.push({msg, tone});
-  // Lifestyle
   if(inputs.lifestyle === 'yard'){
     add("Tiene patio/rural: aún así, salir a oler fuera del hogar sigue siendo clave.", 'warn');
   }
   if(inputs.lifestyle === 'street'){
-    add("Callejero/comunitario: suele recorrer grandes distancias por su cuenta; al adoptarlo, introduce rutinas de paseo graduales.", 'warn');
+    add("Callejero/comunitario: suele recorrer distancias por su cuenta; al adoptarlo, introduce rutinas graduales.", 'warn');
   }
   if(inputs.lifestyle === 'working'){
-    add("Trabajo/deporte: prioriza días de descanso activo y nutrición acorde al gasto.", 'warn');
+    add("Trabajo/deporte: prioriza descanso activo y nutrición acorde al gasto.", 'warn');
   }
-  // Health
   if(inputs.brachy){
     add("Braquicéfalo: limita cada paseo a ≤20 min; evita calor y esfuerzo.", 'danger');
   }
   if(inputs.joints){
-    add("Articulaciones sensibles: elige superficies blandas, varios paseos cortos y considera hidroterapia.", 'warn');
+    add("Articulaciones sensibles: superficie blanda, varios paseos cortos, considera hidroterapia.", 'warn');
   }
   if(inputs.obese){
-    add("Sobrepeso: progresa +5–10 min/semana; combina con dieta supervisada por veterinario.", 'warn');
+    add("Sobrepeso: progresa +5–10 min/semana; acompaña con plan nutricional.", 'warn');
   }
   if(inputs.cardioResp){
-    add("Cardiaco/respiratorio: mantén intensidad baja y consulta a tu veterinario para límites precisos.", 'danger');
+    add("Cardiaco/respiratorio: intensidad baja y guía veterinaria.", 'danger');
   }
-  // Climate
   if(inputs.climate === 'hot'){
-    add("Clima caluroso: pasea al amanecer/atardecer y lleva agua; revisa la temperatura del suelo.", 'warn');
+    add("Clima caluroso: pasea al amanecer/atardecer, hidrata y cuida almohadillas.", 'warn');
   }
   if(inputs.climate === 'altitude'){
     add("Altitud alta: si no está aclimatado, reduce ritmo y observa respiración.", 'warn');
@@ -164,10 +213,66 @@ function assembleNotes(inputs, totalRange, total){
   if(inputs.ageStage === 'puppy'){
     add("Cachorro: varias salidas cortas y mucho descanso; socialización positiva.", 'ok');
   }
-  // General
   add(`Rango sugerido tras ajustes: ${totalRange[0]}–${totalRange[1]} min/día.`, 'ok');
-  add("Ajusta siempre según señales del perro (jadeo, fatiga, desinterés).", 'ok');
+  add("Ajusta según señales del perro (jadeo, fatiga, desinterés).", 'ok');
   return notes;
+}
+
+// Upward bucket always
+function minutesToBucket(min){
+  const buckets = [30, 60, 120, 180, 240];
+  for(const b of buckets){
+    if(min <= b) return b;
+  }
+  return buckets[buckets.length-1];
+}
+function bucketLabel(min){
+  switch(min){
+    case 30: return "30 minutos";
+    case 60: return "1 hora";
+    case 120: return "2 horas";
+    case 180: return "3 horas";
+    case 240: return "4 horas";
+    default: return `${min} min`;
+  }
+}
+
+const step1pill = byId('step1pill');
+const step2pill = byId('step2pill');
+const screen1 = document.querySelector('[data-screen="1"]');
+const screen2 = document.querySelector('[data-screen="2"]');
+const backBtn = byId('backBtn');
+
+function goScreen(n){
+  if(n===1){
+    screen1.classList.add('screen-active');
+    screen2.classList.remove('screen-active');
+    step1pill.classList.add('active');
+    step2pill.classList.remove('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }else{
+    screen2.classList.add('screen-active');
+    screen1.classList.remove('screen-active');
+    step2pill.classList.add('active');
+    step1pill.classList.remove('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+}
+backBtn.addEventListener('click', ()=> goScreen(1));
+
+const ctaBlock = byId('ctaBlock');
+const waBtn = byId('waBtn');
+const serviceHoursEl = byId('serviceHours');
+const WHATSAPP = "https://wa.me/593987874886";
+
+function updateCTA(result){
+  const bucket = minutesToBucket(result.recommendation.minutes_per_day);
+  const label = bucketLabel(bucket);
+  serviceHoursEl.textContent = label;
+  const name = result.dogName ? ` para ${result.dogName}` : "";
+  const text = encodeURIComponent(`Hola CozyPaws, quiero agendar ${label}${name} de caminata/actividad.`);
+  waBtn.href = `${WHATSAPP}?text=${text}`;
+  ctaBlock.classList.remove('hidden');
 }
 
 function calculate(){
@@ -186,19 +291,14 @@ function calculate(){
   };
 
   let [minB, maxB] = baseRangeMinutes(inputs);
-  // Apply multipliers
   const mult = sizeMultiplier(inputs.weightClass)
               * lifestyleMultiplier(inputs.lifestyle)
               * climateMultiplier(inputs.climate)
               * healthMultiplier(inputs);
   let minAdj = round5(minB * mult);
   let maxAdj = round5(maxB * mult);
-
-  // Bounds
   minAdj = clamp(minAdj, 20, 180);
   maxAdj = clamp(Math.max(maxAdj, minAdj + 5), 30, 240);
-
-  // Choose a central recommendation near the middle of the adjusted range
   const total = round5((minAdj + maxAdj) / 2);
 
   const {walks, per} = calcWalksPerDay(total, inputs);
@@ -218,9 +318,8 @@ function calculate(){
   enrichmentEl.textContent = enrich;
   rangeHintEl.textContent = `Rango aproximado: ${minAdj}–${maxAdj} min/día`;
 
-  // Notes tags
   notesEl.innerHTML = "";
-  const notes = assembleNotes(inputs, [minAdj, maxAdj], total);
+  const notes = assembleNotes(inputs, [minAdj, maxAdj]);
   notes.forEach(n => {
     const span = document.createElement('span');
     span.className = `tag ${n.tone}`;
@@ -228,7 +327,6 @@ function calculate(){
     notesEl.appendChild(span);
   });
 
-  // Save latest result for download/copy
   latestResult = {
     ...inputs,
     recommendation: {
@@ -240,13 +338,15 @@ function calculate(){
     },
     timestamp: new Date().toISOString()
   };
+  updateCTA(latestResult);
 }
 
 let latestResult = null;
 
-byId('calc-form').addEventListener('submit', (e) => {
+document.getElementById('calc-form').addEventListener('submit', (e) => {
   e.preventDefault();
   calculate();
+  goScreen(2);
 });
 
 byId('copyBtn').addEventListener('click', async () => {
