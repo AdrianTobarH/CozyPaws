@@ -9,7 +9,7 @@
 </head>
 <body>
   <header class="site-header">
-    <div class="brand">
+    <div class="brand"><button id="themeToggle" class="btn theme">🌙/☀️</button>
       <img src="assets/CozyPaws.jpeg" alt="CozyPaws logo" class="logo" />
       <div class="title-wrap">
         <h1>CozyPaws</h1>
@@ -19,6 +19,8 @@
   </header>
 
   <main class="container">
+    <nav class="stepper"><span class="step active" id="step1pill">Datos</span><span class="divider"></span><span class="step" id="step2pill">Resultados</span></nav>
+
     <section class="intro card">
       <h2>Planifica el ejercicio diario de tu perro</h2>
       <p>
@@ -28,8 +30,8 @@
       </p>
     </section>
 
-    <section class="grid">
-      <form id="calc-form" class="card">
+    <section class="grid screens">
+      <form id="calc-form" class="card screen screen-active" data-screen="1">
         <h3>1) Datos del perro</h3>
         <div class="fields">
           <label class="field">
@@ -38,7 +40,7 @@
           </label>
 
           <label class="field">
-            <span>Edad</span>
+            <span>Edad <small class="muted">(Cachorro ≈ 0–12/18 meses • Adulto ≈ 1–7 años • Senior ≳ 7–8 años, depende de la raza)</small></span>
             <select id="ageStage" required>
               <option value="puppy">Cachorro</option>
               <option value="adult" selected>Adulto</option>
@@ -72,6 +74,39 @@
           </label>
 
           <label class="field">
+            <span>Raza (preajustes opcionales)</span>
+            <select id="breedPreset">
+              <option value="">— Selecciona (opcional) —</option>
+              <option value="husky">Husky Siberiano (alta energía)</option>
+              <option value="border_collie">Border Collie (alta energía)</option>
+              <option value="labrador">Labrador Retriever (energía alta/moderada)</option>
+              <option value="beagle">Beagle (energía moderada)</option>
+              <option value="bulldog">Bulldog Inglés (braqui + baja energía)</option>
+              <option value="pug">Pug (braqui + baja energía)</option>
+              <option value="chihuahua">Chihuahua (baja/moderada)</option>
+              <option value="criollo">Mestizo/Criollo (evaluar individual)</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Ciudad (Ecuador)</span>
+            <select id="ecCity">
+              <option value="">— Selecciona —</option>
+              <option value="quito">Quito (Sierra alta)</option>
+              <option value="cuenca">Cuenca (Sierra)</option>
+              <option value="ambato">Ambato (Sierra)</option>
+              <option value="riobamba">Riobamba (Sierra)</option>
+              <option value="guayaquil">Guayaquil (Costa calurosa)</option>
+              <option value="manta">Manta (Costa calurosa)</option>
+              <option value="esmeraldas">Esmeraldas (Costa calurosa)</option>
+              <option value="loja">Loja (templado/fresco)</option>
+              <option value="tena">Tena (Amazonía calurosa/húmeda)</option>
+              <option value="galapagos">Galápagos (templado)</option>
+              <option value="otro">Otro</option>
+            </select>
+          </label>
+
+          <label class="field">
             <span>Estilo de vida</span>
             <select id="lifestyle" required>
               <option value="companion" selected>Compañía (vive en casa/departamento)</option>
@@ -83,10 +118,19 @@
 
           <fieldset class="field fieldset">
             <legend>Condiciones de salud</legend>
-            <label><input type="checkbox" id="brachy"> Braquicéfalo (hocico chato)</label>
-            <label><input type="checkbox" id="joints"> Problemas articulares (artritis/displasia)</label>
-            <label><input type="checkbox" id="obese"> Sobrepeso u obesidad</label>
-            <label><input type="checkbox" id="cardioResp"> Cardiopatía / respiratorio</label>
+            <label title="Bulldog, Pug, Shih Tzu, etc. Paseos cortos (≤20 min), evitar calor.">
+              <input type="checkbox" id="brachy"> Braquicéfalo (hocico chato) <span class="help">?</span>
+            </label>
+            <label title="Artritis/displasia: terreno blando, más paseos cortos, sin saltos.">
+              <input type="checkbox" id="joints"> Problemas articulares <span class="help">?</span>
+            </label>
+            <label title="Introduce ejercicio gradual (5–10 min/semana) + plan nutricional.">
+              <input type="checkbox" id="obese"> Sobrepeso u obesidad <span class="help">?</span>
+            </label>
+            <label title="Ritmo suave, paseos cortos y supervisión veterinaria.">
+              <input type="checkbox" id="cardioResp"> Cardiopatía / respiratorio <span class="help">?</span>
+            </label>
+            <p class="muted tiny">Pasa el mouse sobre <span class="help-inline">?</span> para ver ayuda.</p>
           </fieldset>
 
           <label class="field">
@@ -101,14 +145,14 @@
         </div>
 
         <div class="actions">
-          <button type="submit" class="btn primary">Calcular</button>
+          <button type="submit" class="btn primary">Ver resultados</button>
           <button type="button" id="resetBtn" class="btn">Limpiar</button>
         </div>
       </form>
 
-      <section id="results" class="card results" aria-live="polite">
+      <section id="results" class="card results screen" data-screen="2" aria-live="polite">
         <h3>2) Resultados</h3>
-        <div id="summary" class="summary muted">Completa el formulario y presiona <em>Calcular</em>.</div>
+        <div id="summary" class="summary muted">Completa el formulario y presiona <em>Ver resultados</em>.</div>
 
         <div id="numbers" class="numbers hidden">
           <div class="metric">
@@ -130,9 +174,18 @@
 
         <div id="notes" class="notes hidden"></div>
 
+        <div class="cta hidden" id="ctaBlock">
+          <div class="cta-line">Te recomendamos contratar nuestros servicios por <strong id="serviceHours">—</strong>.</div>
+          <a id="waBtn" class="btn primary" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+        </div>
+
         <div class="share hidden" id="shareBlock">
           <button id="copyBtn" class="btn">Copiar resumen</button>
           <button id="downloadBtn" class="btn">Descargar JSON</button>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="backBtn" class="btn">Volver a editar</button>
         </div>
       </section>
     </section>
