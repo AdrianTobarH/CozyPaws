@@ -27,6 +27,9 @@ const notesEl = byId('notes');
 const shareBlock = byId('shareBlock');
 
 byId('year').textContent = new Date().getFullYear();
+// Hide months on initial load based on age
+puppyMonthsWrap.hidden = ageStage.value !== 'puppy';
+
 
 // Theme toggle
 const themeToggle = byId('themeToggle');
@@ -61,16 +64,43 @@ breedPreset.addEventListener('change', ()=>{
   switch(v){
     case 'husky':
     case 'border_collie':
+    case 'malinois':
+    case 'gspointer':
+    case 'aussie':
+    case 'german_shepherd':
+    case 'samoyed':
+    case 'akita':
+    case 'jack_russell':
+    case 'boxer':
       energy.value = 'high'; break;
     case 'labrador':
-      energy.value = 'high'; break;
+    case 'golden':
     case 'beagle':
+    case 'cocker':
+    case 'schnauzer_std':
+    case 'poodle_std':
+    case 'pitbull':
+    case 'american_bully':
+    case 'bernese':
       energy.value = 'moderate'; break;
     case 'bulldog':
+    case 'frenchie':
     case 'pug':
+    case 'boston':
+    case 'shih_tzu':
       energy.value = 'low'; brachy.checked = true; break;
-    case 'chihuahua':
+    case 'chow':
       energy.value = 'low'; break;
+    case 'chihuahua':
+    case 'dachshund':
+    case 'schnauzer_mini':
+    case 'poodle_toy':
+    case 'pomeranian':
+      energy.value = 'low'; break;
+    case 'pomsky':
+      energy.value = 'moderate'; /* mezcla: tamaño pequeño-mediano, energía media/alta */ break;
+    case 'yorkie':
+      energy.value = 'moderate'; break;
     default: break;
   }
 });
