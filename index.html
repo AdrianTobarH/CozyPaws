@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CozyPaws • Calculadora de Caminatas</title>
+  <meta name="description" content="Calculadora de actividad física para perros — minutos diarios recomendados de caminata y enriquecimiento, según edad, energía, peso, salud y clima." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <img src="assets/CozyPaws.jpeg" alt="CozyPaws logo" class="logo" />
+      <div class="title-wrap">
+        <h1>CozyPaws</h1>
+        <p class="subtitle">Calculadora de Caminatas y Bienestar</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro card">
+      <h2>Planifica el ejercicio diario de tu perro</h2>
+      <p>
+        Ingresa las características de tu perro y obtén una recomendación de <strong>minutos diarios de caminata</strong>,
+        número de paseos, <strong>duración por paseo</strong> y tiempo de <strong>enriquecimiento olfativo/mental</strong>.
+        Esta herramienta no reemplaza el consejo veterinario; úsala como guía inicial y ajusta según las respuestas de tu perro.
+      </p>
+    </section>
+
+    <section class="grid">
+      <form id="calc-form" class="card">
+        <h3>1) Datos del perro</h3>
+        <div class="fields">
+          <label class="field">
+            <span>Nombre (opcional)</span>
+            <input type="text" id="dogName" placeholder="Firulais" />
+          </label>
+
+          <label class="field">
+            <span>Edad</span>
+            <select id="ageStage" required>
+              <option value="puppy">Cachorro</option>
+              <option value="adult" selected>Adulto</option>
+              <option value="senior">Senior</option>
+            </select>
+          </label>
+
+          <label class="field" id="puppyMonthsWrap" hidden>
+            <span>Meses (solo cachorro)</span>
+            <input type="number" id="puppyMonths" min="1" max="18" value="6" />
+          </label>
+
+          <label class="field">
+            <span>Nivel de energía</span>
+            <select id="energy" required>
+              <option value="low">Bajo / Tranquilo</option>
+              <option value="moderate" selected>Moderado</option>
+              <option value="high">Alto / Trabajo-Deporte</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Peso</span>
+            <select id="weightClass" required>
+              <option value="toy">Muy pequeño &lt; 5 kg</option>
+              <option value="small">Pequeño 5–10 kg</option>
+              <option value="medium" selected>Mediano 10–25 kg</option>
+              <option value="large">Grande 25–40 kg</option>
+              <option value="giant">&gt; 40 kg</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Estilo de vida</span>
+            <select id="lifestyle" required>
+              <option value="companion" selected>Compañía (vive en casa/departamento)</option>
+              <option value="yard">Con patio / rural</option>
+              <option value="street">Callejero / comunitario</option>
+              <option value="working">Trabajo / deporte</option>
+            </select>
+          </label>
+
+          <fieldset class="field fieldset">
+            <legend>Condiciones de salud</legend>
+            <label><input type="checkbox" id="brachy"> Braquicéfalo (hocico chato)</label>
+            <label><input type="checkbox" id="joints"> Problemas articulares (artritis/displasia)</label>
+            <label><input type="checkbox" id="obese"> Sobrepeso u obesidad</label>
+            <label><input type="checkbox" id="cardioResp"> Cardiopatía / respiratorio</label>
+          </fieldset>
+
+          <label class="field">
+            <span>Clima habitual</span>
+            <select id="climate" required>
+              <option value="temperate" selected>Templado</option>
+              <option value="hot">Caluroso/Húmedo (costa/amazonía)</option>
+              <option value="cold">Frío</option>
+              <option value="altitude">Altitud alta (&gt; 2.500 m, sierra)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn primary">Calcular</button>
+          <button type="button" id="resetBtn" class="btn">Limpiar</button>
+        </div>
+      </form>
+
+      <section id="results" class="card results" aria-live="polite">
+        <h3>2) Resultados</h3>
+        <div id="summary" class="summary muted">Completa el formulario y presiona <em>Calcular</em>.</div>
+
+        <div id="numbers" class="numbers hidden">
+          <div class="metric">
+            <div class="label">Minutos diarios recomendados</div>
+            <div class="value"><span id="dailyMin">—</span> <small>min/día</small></div>
+            <div class="hint" id="rangeHint"></div>
+          </div>
+          <div class="metric">
+            <div class="label">Paseos por día</div>
+            <div class="value"><span id="walksPerDay">—</span></div>
+            <div class="hint">Duración aproximada por paseo: <span id="perWalk">—</span> min</div>
+          </div>
+          <div class="metric">
+            <div class="label">Enriquecimiento mental</div>
+            <div class="value"><span id="enrichment">—</span> <small>min/día</small></div>
+            <div class="hint">Permite olfatear libremente (sniffing) y juegos de búsqueda.</div>
+          </div>
+        </div>
+
+        <div id="notes" class="notes hidden"></div>
+
+        <div class="share hidden" id="shareBlock">
+          <button id="copyBtn" class="btn">Copiar resumen</button>
+          <button id="downloadBtn" class="btn">Descargar JSON</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="card tips">
+      <h3>Buenas prácticas</h3>
+      <ul>
+        <li>Empieza gradualmente y aumenta 5–10 min por semana según tolerancia.</li>
+        <li>Evita horas de calor; en sierra alta, adapta el ritmo si no está aclimatado.</li>
+        <li>Descansa ante jadeo intenso, cojeras o fatiga; consulta con tu veterinario.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> CozyPaws — Guía orientativa, no sustituye evaluación veterinaria.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
