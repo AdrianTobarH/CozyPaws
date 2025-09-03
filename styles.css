@@ -136,3 +136,13 @@ body.light .site-header{ background:linear-gradient(180deg, rgba(255,255,255,.9)
 body.light .card{ border-color:#e6e8f0 }
 body.light .btn{ background:#fff; border-color:#e6e8f0 }
 body.light .metric{ background:#fff; border-color:#e6e8f0 }
+
+/* Responsive & spacing fixes for results screen */
+.results{ overflow:hidden }
+.results .numbers{ gap:16px }
+@media (max-width: 980px){
+  .results .numbers{ grid-template-columns:1fr; }
+}
+.notes{ display:flex; flex-wrap:wrap; gap:6px; }
+.cta{ margin-top:14px; padding:14px; border:1px solid #2b2b33; border-radius:12px; background:#101018 }
+.card + .card{ margin-top:14px }
