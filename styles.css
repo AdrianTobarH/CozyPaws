@@ -4,7 +4,7 @@
   --card:#16161a;
   --muted:#9aa0a6;
   --text:#f5f7fb;
-  --accent:#ffb3c0; /* sutil rosa del corazón del logo */
+  --accent:#ffb3c0;
   --primary:#8ab4f8;
   --ok:#8bd17c;
   --warn:#ffd166;
@@ -17,7 +17,7 @@
 html,body{height:100%}
 body{
   margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color:var(--text);
   background: radial-gradient(1200px 800px at 20% -10%, #1e1e2e44, transparent), var(--bg);
   line-height:1.45;
@@ -34,8 +34,14 @@ body{
 .logo{height:64px; width:auto; border-radius:12px; box-shadow: var(--shadow);}
 .title-wrap h1{margin:0; font-size:1.6rem; letter-spacing:.3px}
 .subtitle{margin:2px 0 0; color:var(--muted)}
+.btn.theme{ margin-right:10px; order:-1 }
 
 .container{max-width:1200px; padding:24px 16px; margin:0 auto;}
+.stepper{display:flex; align-items:center; gap:10px; max-width:1200px; margin:0 auto 12px; padding:0 4px}
+.stepper .divider{flex:1; height:2px; background:#2b2b33; border-radius:2px}
+.step{padding:6px 10px; border-radius:999px; border:1px solid #2b2b33; font-size:.9rem; color:var(--muted)}
+.step.active{color:var(--text); border-color:var(--primary); box-shadow:0 0 0 2px #8ab4f822}
+
 .grid{display:grid; grid-template-columns:1.1fr .9fr; gap:18px}
 @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
 
@@ -108,3 +114,25 @@ body{
   text-align:center;
   padding:32px 16px 40px;
 }
+
+/* Screens & help */
+.screens .screen{display:none}
+.screens .screen.screen-active{display:block}
+.help{display:inline-flex; justify-content:center; align-items:center; width:18px; height:18px; border-radius:50%; border:1px solid #3a3a46; color:#cfd3da; font-weight:700; font-size:.8rem; background:#0f0f12; cursor:help; margin-left:6px}
+.help-inline{display:inline-block; width:16px; height:16px; border-radius:50%; border:1px solid #3a3a46; text-align:center; line-height:14px; font-size:.75rem}
+.tiny{font-size:.85rem}
+
+/* Light theme */
+body.light{
+  --bg:#f7f7fb;
+  --card:#ffffff;
+  --text:#0b0b0b;
+  --muted:#586073;
+  --primary:#3b5bcc;
+  --shadow:0 10px 24px rgba(0,0,0,.12);
+  background: radial-gradient(1200px 800px at 20% -10%, #dfe6ff66, transparent), var(--bg);
+}
+body.light .site-header{ background:linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.6)); border-bottom:1px solid #e6e8f0 }
+body.light .card{ border-color:#e6e8f0 }
+body.light .btn{ background:#fff; border-color:#e6e8f0 }
+body.light .metric{ background:#fff; border-color:#e6e8f0 }
